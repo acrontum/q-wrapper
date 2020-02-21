@@ -1,5 +1,5 @@
 {
-  "name": "@acrontum/queue-manager",
+  "name": "q-wrapper",
   "version": "0.0.1",
   "description": "Typescript npm package that manages queue connections and operations.",
   "main": "lib/index.js",
