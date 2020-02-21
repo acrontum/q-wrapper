@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.bmw.acr:dsd/queue-manager.git"
+    "url": "git@github.com:acrontum/queue-manager.git"
   },
   "keywords": [
     "queue",
