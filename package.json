@@ -1,0 +1,46 @@
+{
+  "name": "@acrontum/queue-manager",
+  "version": "0.0.1",
+  "description": "Typescript npm package that manages queue connections and operations.",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "jest --config jestconfig.json",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "tslint -p tsconfig.json",
+    "lint:fix": "tslint --project tsconfig.json --fix",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.bmw.acr:dsd/queue-manager.git"
+  },
+  "keywords": [
+    "queue",
+    "manager"
+  ],
+  "author": "sanchez@acrontum.de",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/amqplib": "^0.5.13",
+    "@types/jest": "^25.1.2",
+    "jest": "^25.1.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^25.2.1",
+    "tslint": "^6.0.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.7.5"
+  },
+  "dependencies": {
+    "amqplib": "^0.5.5"
+  },
+  "files": [
+    "lib/**/*"
+  ]
+}
