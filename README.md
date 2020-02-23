@@ -1,6 +1,6 @@
 # q-wrapper
 
-Typescript npm package that manages queue connections and operations. 
+A TypeScript npm package that manages queue connections and operations. 
 
 Please read RabbitMQ site for more documentation (https://www.rabbitmq.com/).
 
