@@ -1,14 +1,14 @@
 import * as amqp from 'amqplib/callback_api';
-import {ConsumerResponse, QueueSettings, Message} from "../models";
+import {ConsumerResponse, QWrapperSettings, Message} from "../models";
 import {Channel, Message as amqMessage} from "amqplib/callback_api";
-import {IQueueManager} from "./IQueueManager";
+import {IQWrapper} from "./IQWrapper";
 
-export class QueueManagerDomain implements IQueueManager {
+export class QWrapperDomain implements IQWrapper {
 
-  private _settings: QueueSettings;
+  private _settings: QWrapperSettings;
   private _channel: amqp.Channel | undefined;
 
-  constructor(settings?: QueueSettings) {
+  constructor(settings?: QWrapperSettings) {
     if (!settings) {
       settings = {
         queue: '',
@@ -23,19 +23,19 @@ export class QueueManagerDomain implements IQueueManager {
   }
 
   // @ts-ignore
-  get settings(): QueueSettings {
+  get settings(): QWrapperSettings {
     return this._settings;
   }
 
   // @ts-ignore
-  set settings(settings: QueueSettings) {
+  set settings(settings: QWrapperSettings) {
     settings.exchangeType = settings.exchangeType ? settings.exchangeType : 'direct';
 
     this._settings = settings;
   }
 
-  public async initialize(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
+  public initialize(): Promise<boolean> {
+    return new Promise((resolve) => {
       amqp.connect(this._settings.connectionURL, (error0, connection) => {
         if (error0) {
           console.error('Error connecting to queue... ', error0);
@@ -141,4 +141,4 @@ export class QueueManagerDomain implements IQueueManager {
 
 }
 
-export default new QueueManagerDomain();
+export default new QWrapperDomain();

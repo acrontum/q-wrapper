@@ -1,10 +1,10 @@
-import {ConsumerResponse, QueueSettings, Message} from "../models";
+import {ConsumerResponse, QWrapperSettings, Message} from "../models";
 
-export interface IQueueManager {
+export interface IQWrapper {
 
-  settings(): QueueSettings;
+  settings(): QWrapperSettings;
 
-  settings(settings: QueueSettings): void;
+  settings(settings: QWrapperSettings): void;
 
   initialize(): Promise<boolean>;
 

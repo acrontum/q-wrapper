@@ -1,6 +1,6 @@
 {
   "name": "q-wrapper",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Typescript npm package that manages queue connections and operations.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -19,16 +19,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:acrontum/queue-manager.git"
+    "url": "git@github.com:acrontum/q-wrapper.git"
   },
   "keywords": [
     "queue",
-    "manager"
+    "manager",
+    "amqplib",
+    "wrapper"
   ],
   "author": "sanchez@acrontum.de",
   "license": "MIT",
   "devDependencies": {
-    "@types/amqplib": "^0.5.13",
     "@types/jest": "^25.1.2",
     "jest": "^25.1.0",
     "prettier": "^1.19.1",
@@ -38,6 +39,7 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
+    "@types/amqplib": "^0.5.13",
     "amqplib": "^0.5.5"
   },
   "files": [
