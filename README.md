@@ -12,7 +12,9 @@ This defined queues will be created automatically in RabbitMQ.
 Ex:
 
 ```
-const settings: RabbitMQSettings = {
+import {QWrapperDomain, ConsumerResponse, Message, QWrapperSettings} from 'q-wrapper';
+
+const settings: QWrapperSettings = {
   queue: 'dsd.queue',
   dleQueue: 'dsd.dle_queue', /* dleQueue stands for dead letter exchange queue */
   connectionURL: 'amqp://localhost', /* Can also be a connection object see: src/models/QWrapperSettings.ts */

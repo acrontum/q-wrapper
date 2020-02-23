@@ -1,5 +1,4 @@
-import {QWrapperDomain} from "./domains/QWrapperDomain";
-import {QWrapperSettings} from "./models";
+import {QWrapperDomain, QWrapperSettings} from './index';
 
 const settings: QWrapperSettings = {
   queue: 'dsd.queue',
