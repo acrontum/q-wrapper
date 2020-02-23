@@ -1,4 +1,4 @@
-# Queue manager
+# q-wrapper
 
 Typescript npm package that manages queue connections and operations. 
 
@@ -14,8 +14,8 @@ Ex:
 ```
 const settings: RabbitMQSettings = {
   queue: 'dsd.queue',
-  dleQueue: 'dsd.dle_queue',
-  connectionURL: 'amqp://localhost',
+  dleQueue: 'dsd.dle_queue', /* dleQueue stands for dead letter exchange queue */
+  connectionURL: 'amqp://localhost', /* Can also be a connection object see: src/models/QWrapperSettings.ts */
   exchange: 'dsd.exchange',
   exchangeType: 'direct'
 };
@@ -23,7 +23,7 @@ const settings: RabbitMQSettings = {
 Pass the settings to the constructor or call the settings setter method.
 
 ```
-const qm = new QueueManagerDomain(settings);
+const qm = new QWrapperDomain(settings);
 await qm.initialize();
 ```
 

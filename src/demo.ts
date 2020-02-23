@@ -1,7 +1,7 @@
-import {QueueManagerDomain} from "./domains/QueueManagerDomain";
-import {QueueSettings} from "./models";
+import {QWrapperDomain} from "./domains/QWrapperDomain";
+import {QWrapperSettings} from "./models";
 
-const settings: QueueSettings = {
+const settings: QWrapperSettings = {
   queue: 'dsd.queue',
   dleQueue: 'dsd.dle_queue',
   connectionURL: 'amqp://localhost',
@@ -9,7 +9,7 @@ const settings: QueueSettings = {
   exchangeType: 'direct'
 };
 
-const qm = new QueueManagerDomain(settings);
+const qm = new QWrapperDomain(settings);
 
 qm.initialize().then(() => {
   // Send messages
