@@ -1,9 +1,8 @@
 import * as amqp from 'amqplib/callback_api';
 import {ConsumerResponse, QWrapperSettings, Message} from "../models";
 import {Channel, Message as amqMessage} from "amqplib/callback_api";
-import {IQWrapper} from "./IQWrapper";
 
-export class QWrapperDomain implements IQWrapper {
+export class QWrapperDomain {
 
   private _settings: QWrapperSettings;
   private _channel: amqp.Channel | undefined;

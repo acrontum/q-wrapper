@@ -1,12 +1,12 @@
 {
   "name": "q-wrapper",
-  "version": "0.0.2",
-  "description": "Typescript npm package that manages queue connections and operations.",
+  "version": "0.0.3",
+  "description": "A TypeScript npm package that manages queue connections and operations with amqplib.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "jest --config jestconfig.json",
-    "build": "tsc",
+    "build": "tsc -d --declarationDir lib",
     "build:watch": "tsc --watch",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
