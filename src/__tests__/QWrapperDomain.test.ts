@@ -3,7 +3,7 @@ import {QWrapperDomain, QWrapperSettings} from '..';
 test('Queue manager constructor string url', () => {
   const settings: QWrapperSettings = {
     exchange: 'dsd_exchange',
-    connectionURL: 'amqp://localhost',
+    connection: 'amqp://localhost',
     queue:'dsd_queue',
     dleQueue: 'dsd_dead_letter'
   };
@@ -16,7 +16,7 @@ test('Queue manager constructor string url', () => {
 test('Queue manager constructor object connectionUrl', () => {
   const settings: QWrapperSettings = {
     exchange: 'dsd_exchange',
-    connectionURL: {
+    connection: {
       protocol: 'amqp',
       hostname: 'localhost',
       port: 5672,
