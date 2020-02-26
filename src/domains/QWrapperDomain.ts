@@ -12,7 +12,7 @@ export class QWrapperDomain {
       settings = {
         queue: '',
         dleQueue: '',
-        connectionURL: '',
+        connection: '',
         exchange: '',
         exchangeType: 'direct'
       };
@@ -35,7 +35,7 @@ export class QWrapperDomain {
 
   public initialize(): Promise<boolean> {
     return new Promise((resolve) => {
-      amqp.connect(this._settings.connectionURL, (error0, connection) => {
+      amqp.connect(this._settings.connection, (error0, connection) => {
         if (error0) {
           console.error('Error connecting to queue... ', error0);
           throw error0;
@@ -76,10 +76,11 @@ export class QWrapperDomain {
     });
   }
 
-  public sendToQueue(message: object): boolean {
+  public sendToQueue(message: object, queueName?: string): boolean {
     if (this._channel) {
       const messageToSend = Buffer.from(JSON.stringify(message));
-      const response = this._channel.sendToQueue(this._settings.queue, messageToSend, {
+      const queue = queueName? queueName : this._settings.queue;
+      const response = this._channel.sendToQueue(queue, messageToSend, {
         persistent: true,
         contentType: 'application/json'
       });
@@ -90,10 +91,11 @@ export class QWrapperDomain {
     }
   }
 
-  public async consumeAsync(callback: (message: Message) => Promise<ConsumerResponse>): Promise<void> {
+  public async consumeAsync(callback: (message: Message) => Promise<ConsumerResponse>, queueName?: string): Promise<void> {
     if (this._channel) {
       const channel = this._channel;
-      channel.consume(this._settings.queue, async (message) => {
+      const queue = queueName? queueName : this._settings.queue;
+      channel.consume(queue, async (message) => {
         if (message) {
           const consumerResponse = await callback(message);
           this.sendResponseToChannel(consumerResponse, channel, message);
@@ -106,10 +108,15 @@ export class QWrapperDomain {
     }
   }
 
-  public consume(callback: (message: Message) => ConsumerResponse): void {
+  public async consumeDLEAsync(callback: (message: Message) => Promise<ConsumerResponse>): Promise<void> {
+    return this.consumeAsync(callback, this._settings.dleQueue);
+  }
+
+  public consume(callback: (message: Message) => ConsumerResponse, queueName?: string): void {
     if (this._channel) {
       const channel = this._channel;
-      channel.consume(this._settings.queue, (message) => {
+      const queue = queueName? queueName : this._settings.queue;
+      channel.consume(queue, (message) => {
         if (message) {
           const consumerResponse = callback(message);
           this.sendResponseToChannel(consumerResponse, channel, message);
@@ -120,6 +127,10 @@ export class QWrapperDomain {
     } else {
       throw Error('Channel not set up.');
     }
+  }
+
+  public consumeDLE(callback: (message: Message) => ConsumerResponse): void {
+    this.consume(callback, this._settings.dleQueue);
   }
 
   public close(): void {

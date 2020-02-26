@@ -15,10 +15,10 @@ Ex:
 import {QWrapperDomain, ConsumerResponse, Message, QWrapperSettings} from 'q-wrapper';
 
 const settings: QWrapperSettings = {
-  queue: 'dsd.queue',
-  dleQueue: 'dsd.dle_queue', /* dleQueue stands for dead letter exchange queue */
+  queue: 'demo.queue',
+  dleQueue: 'demo.dle_queue', /* dleQueue stands for dead letter exchange queue */
   connectionURL: 'amqp://localhost', /* Can also be a connection object see: src/models/QWrapperSettings.ts */
-  exchange: 'dsd.exchange',
+  exchange: 'demo.exchange',
   exchangeType: 'direct'
 };
 ```

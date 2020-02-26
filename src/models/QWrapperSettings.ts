@@ -1,7 +1,7 @@
-import { Options } from 'amqplib/properties';
+import {ConnectionOptions} from "./ConnectionOptions";
 
 export interface QWrapperSettings {
-  connectionURL: string | Options.Connect;
+  connection: string | ConnectionOptions;
   queue: string;
   dleQueue: string;
   exchange: string;

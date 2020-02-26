@@ -1,10 +1,10 @@
 import {QWrapperDomain, QWrapperSettings} from './index';
 
 const settings: QWrapperSettings = {
-  queue: 'dsd.queue',
-  dleQueue: 'dsd.dle_queue',
-  connectionURL: 'amqp://localhost',
-  exchange: 'dsd.exchange',
+  queue: 'demo.queue',
+  dleQueue: 'demo.dle_queue',
+  connection: 'amqp://localhost',
+  exchange: 'demo.exchange',
   exchangeType: 'direct'
 };
 
