@@ -66,6 +66,8 @@ export class QWrapperDomain {
             deadLetterRoutingKey: this._settings.dleQueue
           });
 
+          channel.bindQueue(this._settings.queue, this._settings.exchange, this._settings.queue);
+
           channel.prefetch(1);
 
           this._channel = channel;
@@ -79,13 +81,23 @@ export class QWrapperDomain {
   public sendToQueue(message: object, queueName?: string): boolean {
     if (this._channel) {
       const messageToSend = Buffer.from(JSON.stringify(message));
-      const queue = queueName? queueName : this._settings.queue;
+      const queue = queueName ? queueName : this._settings.queue;
       const response = this._channel.sendToQueue(queue, messageToSend, {
         persistent: true,
         contentType: 'application/json'
       });
-      console.debug(" [x] Sent %s", messageToSend);
       return response;
+    } else {
+      throw Error('Channel not set up.');
+    }
+  }
+
+  public sendToExchange(message: object, exchange?: string, routingKey?: string): boolean {
+    if (this._channel) {
+      const messageToSend = Buffer.from(JSON.stringify(message));
+      exchange = exchange? exchange : this._settings.exchange;
+      routingKey = routingKey? routingKey : this._settings.queue;
+      return this._channel.publish(exchange, routingKey, messageToSend);
     } else {
       throw Error('Channel not set up.');
     }
@@ -94,7 +106,7 @@ export class QWrapperDomain {
   public async consumeAsync(callback: (message: Message) => Promise<ConsumerResponse>, queueName?: string): Promise<void> {
     if (this._channel) {
       const channel = this._channel;
-      const queue = queueName? queueName : this._settings.queue;
+      const queue = queueName ? queueName : this._settings.queue;
       channel.consume(queue, async (message) => {
         if (message) {
           const consumerResponse = await callback(message);
@@ -115,7 +127,7 @@ export class QWrapperDomain {
   public consume(callback: (message: Message) => ConsumerResponse, queueName?: string): void {
     if (this._channel) {
       const channel = this._channel;
-      const queue = queueName? queueName : this._settings.queue;
+      const queue = queueName ? queueName : this._settings.queue;
       channel.consume(queue, (message) => {
         if (message) {
           const consumerResponse = callback(message);
