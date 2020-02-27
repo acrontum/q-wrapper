@@ -12,8 +12,8 @@ const qm = new QWrapperDomain(settings);
 
 qm.initialize().then(() => {
   // Send messages
-  qm.sendToQueue({message: 'Hallo queue'});
-  qm.sendToQueue({message: 'Hallo queue again'});
+  qm.sendToQueue({message: 'Hallo queue!'});
+  qm.sendToExchange({message: 'Hallo from exchange!'});
 
   // Consume messages
   qm.consume((message) => {
