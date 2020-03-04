@@ -1,39 +1,17 @@
 import * as amqp from 'amqplib/callback_api';
-import {ConsumerResponse, QWrapperSettings, Message} from "../models";
-import {Channel, Message as amqMessage} from "amqplib/callback_api";
+import { ConsumerResponse, QWrapperSettings } from '../models';
+import { Channel, Message as amqMessage } from 'amqplib/callback_api';
 
 export class QWrapperDomain {
 
   private _settings: QWrapperSettings;
   private _channel: amqp.Channel | undefined;
 
-  constructor(settings?: QWrapperSettings) {
-    if (!settings) {
-      settings = {
-        queue: '',
-        dleQueue: '',
-        connection: '',
-        exchange: '',
-        exchangeType: 'direct'
-      };
-    }
-
+  constructor (settings: QWrapperSettings) {
     this._settings = settings;
   }
 
-  // @ts-ignore
-  get settings(): QWrapperSettings {
-    return this._settings;
-  }
-
-  // @ts-ignore
-  set settings(settings: QWrapperSettings) {
-    settings.exchangeType = settings.exchangeType ? settings.exchangeType : 'direct';
-
-    this._settings = settings;
-  }
-
-  public initialize(): Promise<boolean> {
+  public initialize (): Promise<void> {
     return new Promise((resolve) => {
       amqp.connect(this._settings.connection, (error0, connection) => {
         if (error0) {
@@ -48,37 +26,32 @@ export class QWrapperDomain {
           }
 
           console.info('Channel created successfully');
-
-          // @ts-ignore
-          channel.assertExchange(this._settings.exchange, this._settings.exchangeType, {
+          this._channel = channel;
+          const durable = {
             durable: true
-          });
+          };
+          this._channel.assertExchange(this._settings.exchange, this._settings.exchangeType, durable);
+          this._channel.assertQueue(this._settings.dleQueue, durable);
 
-          channel.assertQueue(this._settings.dleQueue, {
-            durable: true,
-          });
+          this._channel.bindQueue(this._settings.dleQueue, this._settings.exchange, this._settings.dleQueue);
 
-          channel.bindQueue(this._settings.dleQueue, this._settings.exchange, this._settings.dleQueue);
-
-          channel.assertQueue(this._settings.queue, {
+          this._channel.assertQueue(this._settings.queue, {
             durable: true,
             deadLetterExchange: this._settings.exchange,
             deadLetterRoutingKey: this._settings.dleQueue
           });
 
-          channel.bindQueue(this._settings.queue, this._settings.exchange, this._settings.queue);
+          this._channel.bindQueue(this._settings.queue, this._settings.exchange, this._settings.queue);
 
-          channel.prefetch(1);
+          this._channel.prefetch(1);
 
-          this._channel = channel;
-
-          return resolve(true);
+          return resolve();
         });
       });
     });
   }
 
-  public sendToQueue(message: object, queueName?: string): boolean {
+  public sendToQueue (message: object, queueName?: string): boolean {
     if (this._channel) {
       const messageToSend = Buffer.from(JSON.stringify(message));
       const queue = queueName ? queueName : this._settings.queue;
@@ -92,24 +65,23 @@ export class QWrapperDomain {
     }
   }
 
-  public sendToExchange(message: object, exchange?: string, routingKey?: string): boolean {
+  public sendToExchange (message: object, routingKey?: string): boolean {
     if (this._channel) {
       const messageToSend = Buffer.from(JSON.stringify(message));
-      exchange = exchange? exchange : this._settings.exchange;
-      routingKey = routingKey? routingKey : this._settings.queue;
-      return this._channel.publish(exchange, routingKey, messageToSend);
+      routingKey = routingKey ? routingKey : this._settings.queue;
+      return this._channel.publish(this._settings.exchange, routingKey, messageToSend);
     } else {
       throw Error('Channel not set up.');
     }
   }
 
-  public async consumeAsync(callback: (message: Message) => Promise<ConsumerResponse>, queueName?: string): Promise<void> {
+  public consume (callback: (message: amqMessage) => Promise<ConsumerResponse>, consumeDLE: boolean = false): void {
     if (this._channel) {
       const channel = this._channel;
-      const queue = queueName ? queueName : this._settings.queue;
+      const queue = consumeDLE ? this._settings.dleQueue : this._settings.queue;
       channel.consume(queue, async (message) => {
         if (message) {
-          const consumerResponse = await callback(message);
+          const consumerResponse = await callback(message).then();
           this.sendResponseToChannel(consumerResponse, channel, message);
         }
       }, {
@@ -120,32 +92,11 @@ export class QWrapperDomain {
     }
   }
 
-  public async consumeDLEAsync(callback: (message: Message) => Promise<ConsumerResponse>): Promise<void> {
-    return this.consumeAsync(callback, this._settings.dleQueue);
+  public async consumeDLE (callback: (message: amqMessage) => Promise<ConsumerResponse>): Promise<void> {
+    return this.consume(callback, true);
   }
 
-  public consume(callback: (message: Message) => ConsumerResponse, queueName?: string): void {
-    if (this._channel) {
-      const channel = this._channel;
-      const queue = queueName ? queueName : this._settings.queue;
-      channel.consume(queue, (message) => {
-        if (message) {
-          const consumerResponse = callback(message);
-          this.sendResponseToChannel(consumerResponse, channel, message);
-        }
-      }, {
-        noAck: false
-      });
-    } else {
-      throw Error('Channel not set up.');
-    }
-  }
-
-  public consumeDLE(callback: (message: Message) => ConsumerResponse): void {
-    this.consume(callback, this._settings.dleQueue);
-  }
-
-  public close(): void {
+  public close (): void {
     if (this._channel) {
       this._channel.close(() => {
         console.info('Channel closed');
@@ -153,14 +104,11 @@ export class QWrapperDomain {
     }
   }
 
-  private sendResponseToChannel(consumerResponse: ConsumerResponse, channel: Channel, message: amqMessage) {
+  private sendResponseToChannel (consumerResponse: ConsumerResponse, channel: Channel, message: amqMessage) {
     if (consumerResponse.processed) {
       channel.ack(message);
     } else {
       channel.reject(message, consumerResponse.requeue);
     }
   }
-
 }
-
-export default new QWrapperDomain();
