@@ -1,19 +1,17 @@
 import {QWrapperDomain, QWrapperSettings} from '..';
 
-test('Queue manager constructor string url', () => {
-  const settings: QWrapperSettings = {
+test('Queue manager constructor string url', (done) => {
+  const qw = new QWrapperDomain({
     exchange: 'dsd_exchange',
     connection: 'amqp://localhost',
     queue:'dsd_queue',
-    dleQueue: 'dsd_dead_letter'
-  };
-
-  const qManager = new QWrapperDomain(settings);
-
-  expect(qManager.settings).toBe(settings);
+    dleQueue: 'dsd_dead_letter',
+    exchangeType: 'direct'
+  });
+  done()
 });
 
-test('Queue manager constructor object connectionUrl', () => {
+test('Queue manager constructor object connectionUrl', (done) => {
   const settings: QWrapperSettings = {
     exchange: 'dsd_exchange',
     connection: {
@@ -28,10 +26,10 @@ test('Queue manager constructor object connectionUrl', () => {
       vhost: '/',
     },
     queue:'dsd_queue',
-    dleQueue: 'dsd_dead_letter'
+    dleQueue: 'dsd_dead_letter',
+    exchangeType: 'fanout'
   };
 
   const qManager = new QWrapperDomain(settings);
-
-  expect(qManager.settings).toBe(settings);
+  done();
 });

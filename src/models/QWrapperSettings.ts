@@ -5,5 +5,5 @@ export interface QWrapperSettings {
   queue: string;
   dleQueue: string;
   exchange: string;
-  exchangeType?: string;
+  exchangeType: string;
 }
