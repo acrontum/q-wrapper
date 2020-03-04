@@ -4,8 +4,6 @@
 
 A TypeScript npm package that manages queue connections and operations.
 
-Current queue system comparability: https://www.rabbitmq.com
-
 Read the full docs here: https://acrontum.github.io/q-wrapper/
 
 ___
