@@ -101,15 +101,32 @@ export class QWrapperDomain {
 
   public close (): Promise<void> {
     return new Promise((resolve) => {
-      if (this._channel) {
-        this._channel.close(() => {
-          console.info('Channel closed');
-          this._channel = undefined;
-          return resolve();
-        });
-      } else {
+      if (!this._channel) {
         return resolve();
       }
+      this._channel.close(() => {
+        console.info('Channel closed');
+        this._channel = undefined;
+        return resolve();
+      });
+    });
+  }
+  
+  public closeConnection (): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      await this.close();
+
+      if (!this._connection) {
+        return resolve();
+      }
+      this._connection.close((err?: any) => {
+        if (err) {
+          return reject(err);
+        }
+        console.info('Connection closed');
+        this._connection = undefined;
+        return resolve();
+      });
     });
   }
 
