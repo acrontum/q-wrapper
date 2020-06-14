@@ -6,6 +6,7 @@ export class QWrapperDomain {
 
   private _settings: QWrapperSettings;
   private _channel: amqp.Channel | undefined;
+  private _connection: amqp.Connection | undefined;
 
   constructor (settings: QWrapperSettings) {
     this._settings = settings;
@@ -19,7 +20,9 @@ export class QWrapperDomain {
           throw error0;
         }
 
-        connection.createChannel((error1, channel) => {
+        this._connection = connection;
+
+        this._connection.createChannel((error1, channel) => {
           if (error1) {
             console.error('Error creating channel... ', error1);
             throw error1;
@@ -96,12 +99,35 @@ export class QWrapperDomain {
     return this.consume(callback, true);
   }
 
-  public close (): void {
-    if (this._channel) {
+  public close (): Promise<void> {
+    return new Promise((resolve) => {
+      if (!this._channel) {
+        return resolve();
+      }
       this._channel.close(() => {
         console.info('Channel closed');
+        this._channel = undefined;
+        return resolve();
       });
-    }
+    });
+  }
+  
+  public closeConnection (): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      await this.close();
+
+      if (!this._connection) {
+        return resolve();
+      }
+      this._connection.close((err?: any) => {
+        if (err) {
+          return reject(err);
+        }
+        console.info('Connection closed');
+        this._connection = undefined;
+        return resolve();
+      });
+    });
   }
 
   private sendResponseToChannel (consumerResponse: ConsumerResponse, channel: Channel, message: amqMessage) {
