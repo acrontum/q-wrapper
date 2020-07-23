@@ -47,7 +47,7 @@ export class QWrapperDomain {
           console.info(`${packageName} Exchange: '${this._settings.exchange}' asserted successfully`)
 
           this._channel.assertQueue(this._settings.dleQueue, durable)
-          console.info(`${packageName} Queue: '${this._settings.exchange}' asserted successfully`)
+          console.info(`${packageName} DLE Queue: '${this._settings.dleQueue}' asserted successfully`)
 
           this._channel.bindQueue(this._settings.dleQueue, this._settings.exchange, this._settings.dleQueue)
 
@@ -56,6 +56,7 @@ export class QWrapperDomain {
             deadLetterExchange: this._settings.exchange,
             deadLetterRoutingKey: this._settings.dleQueue
           })
+          console.info(`${packageName} Queue: '${this._settings.exchange}' asserted successfully`)
 
           this._channel.bindQueue(this._settings.queue, this._settings.exchange, this._settings.queue)
 
