@@ -6,4 +6,5 @@ export interface QWrapperSettings {
   dleQueue: string;
   exchange: string;
   exchangeType: string;
+  verboseLogging?: boolean;
 }
