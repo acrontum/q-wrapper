@@ -1,4 +1,4 @@
-import {ConnectionOptions} from "./ConnectionOptions";
+import { ConnectionOptions } from './ConnectionOptions';
 
 export interface QWrapperSettings {
   connection: string | ConnectionOptions;
