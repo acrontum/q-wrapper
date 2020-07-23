@@ -56,7 +56,7 @@ export class QWrapperDomain {
             deadLetterExchange: this._settings.exchange,
             deadLetterRoutingKey: this._settings.dleQueue
           });
-          console.info(`${packageName} Queue: '${this._settings.exchange}' asserted successfully`);
+          console.info(`${packageName} Queue: '${this._settings.queue}' asserted successfully`);
 
           this._channel.bindQueue(this._settings.queue, this._settings.exchange, this._settings.queue);
 
