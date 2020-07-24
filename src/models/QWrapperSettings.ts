@@ -1,4 +1,4 @@
-import {ConnectionOptions} from "./ConnectionOptions";
+import { ConnectionOptions } from './ConnectionOptions';
 
 export interface QWrapperSettings {
   connection: string | ConnectionOptions;
@@ -6,4 +6,5 @@ export interface QWrapperSettings {
   dleQueue: string;
   exchange: string;
   exchangeType: string;
+  verboseLogging?: boolean;
 }
