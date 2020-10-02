@@ -155,7 +155,7 @@ export class QWrapperDomain {
     this.logVerbose('sendResponseToChannel called');
     channel.ack(message);
     if (!consumerResponse.processed) {
-      this?._channel?.sendToQueue?.(this._settings.dleQueue, message.content);
+      channel.sendToQueue(this._settings.dleQueue, message.content);
     }
   }
 }
