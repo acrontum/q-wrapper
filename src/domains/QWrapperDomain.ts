@@ -10,6 +10,7 @@ export class QWrapperDomain {
   private _settings: QWrapperSettings;
   private _channel: amqp.Channel | undefined;
   private _connection: amqp.Connection | undefined;
+  private _isConnecting: boolean = false;
 
   constructor (settings: QWrapperSettings) {
     this._settings = settings;
@@ -24,19 +25,39 @@ export class QWrapperDomain {
     }
   }
 
-  public initialize (): Promise<void> {
+  public initialize (settings?: QWrapperSettings): Promise<void> {
+    if (settings) {
+      this._settings = settings;
+    }
+
     return new Promise((resolve) => {
+      if (this._isConnecting) {
+        return resolve();
+      }
+      this._isConnecting = true;
+
       amqp.connect(this._settings.connection, (error0, connection) => {
         if (error0) {
           console.error(`${packageName} Error connecting to queue... `, error0);
+          this._isConnecting = false;
           throw error0;
         }
         this._connection = connection;
         console.info(`${packageName} Connection established to message broker host`);
 
+        if(this._settings.reconnect) {
+          this._connection.on('close', () => {
+            console.error('[AMQP] reconnecting');
+            return setTimeout(async () => {
+              await this.initialize(this._settings)
+            }, 1500);
+          });
+        }
+
         this._connection.createChannel((error1, channel) => {
           if (error1) {
             console.error(`${packageName} Error creating channel... `, error1);
+            this._isConnecting = false;
             throw error1;
           }
           this._channel = channel;
@@ -61,6 +82,8 @@ export class QWrapperDomain {
           this._channel.bindQueue(this._settings.queue, this._settings.exchange, this._settings.queue);
 
           this._channel.prefetch(1);
+
+          this._isConnecting = false;
 
           return resolve();
         });
