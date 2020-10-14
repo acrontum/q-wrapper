@@ -30,7 +30,7 @@ export class QWrapperDomain {
       this._settings = settings;
     }
 
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve, reject) => {
       if (this._isConnecting) {
         return resolve();
       }
@@ -39,7 +39,6 @@ export class QWrapperDomain {
       amqp.connect(this._settings.connection, (error0, connection) => {
         if (error0) {
           console.error(`${packageName} Error connecting to queue... `, error0);
-          this._isConnecting = false;
           throw error0;
         }
         this._connection = connection;
@@ -57,7 +56,6 @@ export class QWrapperDomain {
         this._connection.createChannel((error1, channel) => {
           if (error1) {
             console.error(`${packageName} Error creating channel... `, error1);
-            this._isConnecting = false;
             throw error1;
           }
           this._channel = channel;
@@ -88,6 +86,10 @@ export class QWrapperDomain {
           return resolve();
         });
       });
+    }).catch((e: any) => {
+      console.trace(e);
+      this._isConnecting = false;
+      throw e;
     });
   }
 
