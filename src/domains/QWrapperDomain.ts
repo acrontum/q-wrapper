@@ -79,7 +79,7 @@ export class QWrapperDomain {
     });
   }
 
-  public sendToQueue (message: object, queueName?: string, msgOptions?: amqp.Options.Publish): boolean {
+  public sendToQueue (message: object, queueName?: string, msgOptions?: Options.Publish): boolean {
     if (this._channel) {
       this.logVerbose('sendToQueue called', { message, queueName: queueName || 'not defined' });
 
@@ -100,7 +100,7 @@ export class QWrapperDomain {
     }
   }
 
-  public sendToExchange (message: object, routingKey?: string, msgOptions?: amqp.Options.Publish): boolean {
+  public sendToExchange (message: object, routingKey?: string, msgOptions?: Options.Publish): boolean {
     if (this._channel) {
       this.logVerbose('sendToExchange called', { message, routingKey: routingKey || 'not defined' });
 
