@@ -1,6 +1,6 @@
 import * as amqp from 'amqplib/callback_api';
 import { ConsumerResponse, QWrapperSettings } from '../models';
-import { Channel, Message as amqMessage } from 'amqplib/callback_api';
+import { Channel, Message as amqMessage, Options } from 'amqplib/callback_api';
 import { inspect } from 'util';
 
 const packageName = 'q-wrapper: ';
@@ -10,7 +10,6 @@ export class QWrapperDomain {
   private _settings: QWrapperSettings;
   private _channel: amqp.Channel | undefined;
   private _connection: amqp.Connection | undefined;
-  private _isConnecting: boolean = false;
 
   constructor (settings: QWrapperSettings) {
     this._settings = settings;
@@ -31,11 +30,6 @@ export class QWrapperDomain {
     }
 
     return new Promise<void>((resolve, reject) => {
-      if (this._isConnecting) {
-        return resolve();
-      }
-      this._isConnecting = true;
-
       amqp.connect(this._settings.connection, (error0, connection) => {
         if (error0) {
           console.error(`${packageName} Error connecting to queue... `, error0);
@@ -43,15 +37,6 @@ export class QWrapperDomain {
         }
         this._connection = connection;
         console.info(`${packageName} Connection established to message broker host`);
-
-        if(this._settings.reconnect) {
-          this._connection.on('close', () => {
-            console.error('[AMQP] reconnecting');
-            return setTimeout(async () => {
-              await this.initialize(this._settings)
-            }, 1500);
-          });
-        }
 
         this._connection.createChannel((error1, channel) => {
           if (error1) {
@@ -81,41 +66,50 @@ export class QWrapperDomain {
 
           this._channel.prefetch(this._settings.prefetch || 1);
 
-          this._isConnecting = false;
+          if (this._settings.reconnect) {
+            connection.on('close', () => {
+              console.error('[AMQP] reconnecting');
+              this.initialize(this._settings);
+            });
+          }
 
           return resolve();
         });
       });
-    }).catch((e: any) => {
-      console.trace(e);
-      this._isConnecting = false;
-      throw e;
     });
   }
 
-  public sendToQueue (message: object, queueName?: string): boolean {
+  public sendToQueue (message: object, queueName?: string, msgOptions?: amqp.Options.Publish): boolean {
     if (this._channel) {
       this.logVerbose('sendToQueue called', { message, queueName: queueName || 'not defined' });
+
       const messageToSend = Buffer.from(JSON.stringify(message));
       const queue = queueName ? queueName : this._settings.queue;
+
       const response = this._channel.sendToQueue(queue, messageToSend, {
         persistent: true,
-        contentType: 'application/json'
+        contentType: 'application/json',
+        ...(msgOptions || {}),
       });
+
       this.logVerbose('sendToQueue completed', { response });
+
       return response;
     } else {
       throw Error('Channel not set up.');
     }
   }
 
-  public sendToExchange (message: object, routingKey?: string): boolean {
+  public sendToExchange (message: object, routingKey?: string, msgOptions?: amqp.Options.Publish): boolean {
     if (this._channel) {
       this.logVerbose('sendToExchange called', { message, routingKey: routingKey || 'not defined' });
+
       const messageToSend = Buffer.from(JSON.stringify(message));
       routingKey = routingKey ? routingKey : this._settings.queue;
-      const response = this._channel.publish(this._settings.exchange, routingKey, messageToSend);
+
+      const response = this._channel.publish(this._settings.exchange, routingKey, messageToSend, msgOptions);
       this.logVerbose('sendToExchange completed', { response });
+
       return response;
     } else {
       throw Error('Channel not set up.');
