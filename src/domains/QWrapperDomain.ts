@@ -1,6 +1,6 @@
 import * as amqp from 'amqplib/callback_api';
 import { ConsumerResponse, QWrapperSettings } from '../models';
-import { Channel, Message as amqMessage } from 'amqplib/callback_api';
+import { Channel, Message as amqMessage, Options } from 'amqplib/callback_api';
 import { inspect } from 'util';
 
 const packageName = 'q-wrapper: ';
@@ -24,8 +24,12 @@ export class QWrapperDomain {
     }
   }
 
-  public initialize (): Promise<void> {
-    return new Promise((resolve) => {
+  public initialize (settings?: QWrapperSettings): Promise<void> {
+    if (settings) {
+      this._settings = settings;
+    }
+
+    return new Promise<void>((resolve, reject) => {
       amqp.connect(this._settings.connection, (error0, connection) => {
         if (error0) {
           console.error(`${packageName} Error connecting to queue... `, error0);
@@ -60,7 +64,14 @@ export class QWrapperDomain {
 
           this._channel.bindQueue(this._settings.queue, this._settings.exchange, this._settings.queue);
 
-          this._channel.prefetch(1);
+          this._channel.prefetch(this._settings.prefetch || 1);
+
+          if (this._settings.reconnect) {
+            connection.on('close', () => {
+              console.error('[AMQP] reconnecting');
+              this.initialize(this._settings);
+            });
+          }
 
           return resolve();
         });
@@ -68,29 +79,37 @@ export class QWrapperDomain {
     });
   }
 
-  public sendToQueue (message: object, queueName?: string): boolean {
+  public sendToQueue (message: object, queueName?: string, msgOptions?: Options.Publish): boolean {
     if (this._channel) {
       this.logVerbose('sendToQueue called', { message, queueName: queueName || 'not defined' });
+
       const messageToSend = Buffer.from(JSON.stringify(message));
       const queue = queueName ? queueName : this._settings.queue;
+
       const response = this._channel.sendToQueue(queue, messageToSend, {
         persistent: true,
-        contentType: 'application/json'
+        contentType: 'application/json',
+        ...(msgOptions || {}),
       });
+
       this.logVerbose('sendToQueue completed', { response });
+
       return response;
     } else {
       throw Error('Channel not set up.');
     }
   }
 
-  public sendToExchange (message: object, routingKey?: string): boolean {
+  public sendToExchange (message: object, routingKey?: string, msgOptions?: Options.Publish): boolean {
     if (this._channel) {
       this.logVerbose('sendToExchange called', { message, routingKey: routingKey || 'not defined' });
+
       const messageToSend = Buffer.from(JSON.stringify(message));
       routingKey = routingKey ? routingKey : this._settings.queue;
-      const response = this._channel.publish(this._settings.exchange, routingKey, messageToSend);
+
+      const response = this._channel.publish(this._settings.exchange, routingKey, messageToSend, msgOptions);
       this.logVerbose('sendToExchange completed', { response });
+
       return response;
     } else {
       throw Error('Channel not set up.');
