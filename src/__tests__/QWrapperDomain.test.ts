@@ -15,7 +15,8 @@ const settings: QWrapperSettings = {
   },
   queue:'test_dsd_queue',
   dleQueue: 'test_dsd_dead_letter',
-  exchangeType: 'fanout'
+  exchangeType: 'fanout',
+  reconnect: false
 };
 
 test('Queue manager constructor string url', (done) => {
