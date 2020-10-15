@@ -79,7 +79,7 @@ export class QWrapperDomain {
 
           this._channel.bindQueue(this._settings.queue, this._settings.exchange, this._settings.queue);
 
-          this._channel.prefetch(1);
+          this._channel.prefetch(this._settings.prefetch || 1);
 
           this._isConnecting = false;
 
