@@ -172,10 +172,9 @@ export class QWrapperDomain {
 
   private sendResponseToChannel (consumerResponse: ConsumerResponse, channel: Channel, message: amqMessage) {
     this.logVerbose('sendResponseToChannel called');
-    if (consumerResponse.processed) {
-      channel.ack(message);
-    } else {
-      channel.reject(message, consumerResponse.requeue);
+    channel.ack(message);
+    if (!consumerResponse.processed) {
+      channel.sendToQueue(this._settings.dleQueue, message.content);
     }
   }
 }
