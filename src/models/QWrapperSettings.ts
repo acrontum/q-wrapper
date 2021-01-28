@@ -7,6 +7,7 @@ export interface QWrapperSettings {
   exchange: string;
   exchangeType: string;
   verboseLogging?: boolean;
+  veryVerboseLogging?: boolean;
   reconnect?: boolean;
   prefetch?: number;
 }
