@@ -1,12 +1,13 @@
 import * as amqp from 'amqplib/callback_api';
-import { ConsumerResponse, QWrapperSettings } from '../models';
 import { Channel, Message as amqMessage, Options } from 'amqplib/callback_api';
+import { ConsumerResponse, QWrapperSettings } from '../models';
 import { inspect } from 'util';
 
 const packageName = 'q-wrapper: ';
 
 export class QWrapperDomain {
 
+  private _verboseLogging: boolean = false;
   private _settings: QWrapperSettings;
   private _channel: amqp.Channel | undefined;
   private _connection: amqp.Connection | undefined;
@@ -16,7 +17,7 @@ export class QWrapperDomain {
   }
 
   logVerbose (key: string, toLog?: any) {
-    if (this._settings.verboseLogging) {
+    if (this._verboseLogging) {
       console.log(packageName + ' ' + key);
       if (toLog) {
         console.log(inspect(toLog, false, null, true /* enable colors */));
@@ -27,9 +28,10 @@ export class QWrapperDomain {
   public initialize (settings?: QWrapperSettings): Promise<void> {
     if (settings) {
       this._settings = settings;
+      this._verboseLogging = !!(this._settings.verboseLogging || process.env['q-wrapper:verbose-logging']);
     }
 
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve) => {
       amqp.connect(this._settings.connection, (error0, connection) => {
         if (error0) {
           console.error(`${packageName} Error connecting to queue... `, error0);
