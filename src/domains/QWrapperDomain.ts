@@ -123,10 +123,11 @@ export class QWrapperDomain {
       channel.consume(queue, async (message) => {
         this.logVerbose('consume callback called', { message: message || 'not defined' });
         if (message) {
-          const consumerResponse = await callback(message).then();
+          const consumerResponse = await callback(message);
+          this.logVerbose('consume callback completed:', consumerResponse);
           this.sendResponseToChannel(consumerResponse, channel, message);
+          this.logVerbose('sendResponseToChannel completed');
         }
-        this.logVerbose('consume callback completed');
       }, {
         noAck: false
       });
