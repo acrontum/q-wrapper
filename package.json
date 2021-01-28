@@ -39,7 +39,7 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
-    "@types/amqplib": "^0.5.14",
+    "@types/amqplib": "^0.5.17",
     "amqplib": "^0.6.0"
   },
   "files": [

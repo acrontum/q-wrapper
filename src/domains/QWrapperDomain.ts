@@ -28,7 +28,7 @@ export class QWrapperDomain {
   public initialize (settings?: QWrapperSettings): Promise<void> {
     if (settings) {
       this._settings = settings;
-      this._verboseLogging = !!(this._settings.verboseLogging || process.env['q-wrapper:verbose-logging']);
+      this._verboseLogging = !!(this._settings.verboseLogging || process.env['q_wrapper_verbose_logging']);
     }
 
     return new Promise<void>((resolve) => {
