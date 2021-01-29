@@ -28,7 +28,7 @@ export class QWrapperDomain {
   }
 
   logVeryVerbose (toLog?: any) {
-    if (this._verboseLogging) {
+    if (this._veryVerboseLogging) {
       console.log(packageName, inspect(toLog, false, null, true /* enable colors */));
     }
   }
