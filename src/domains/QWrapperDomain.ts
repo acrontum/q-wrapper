@@ -140,8 +140,7 @@ export class QWrapperDomain {
         this.logVeryVerbose({ message: message || 'not defined' });
         if (message) {
           const consumerResponse = await callback(message);
-          this.logVerbose('consume callback completed:');
-          this.logVeryVerbose(consumerResponse);
+          this.logVerbose('consume callback completed:', consumerResponse);
           this.sendResponseToChannel(consumerResponse, channel, message);
           this.logVerbose('sendResponseToChannel completed');
         }
