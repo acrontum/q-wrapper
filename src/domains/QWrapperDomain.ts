@@ -37,8 +37,8 @@ export class QWrapperDomain {
     if (settings) {
       this._settings = settings;
     }
-    this._verboseLogging = !!(this._settings.verboseLogging || process.env['q_wrapper_verbose_logging']);
-    this._veryVerboseLogging = !!(this._settings.veryVerboseLogging || process.env['q_wrapper_very_verbose_logging']);
+    this._verboseLogging = !!(this._settings.verboseLogging || process.env.q_wrapper_verbose_logging);
+    this._veryVerboseLogging = !!(this._settings.veryVerboseLogging || process.env.q_wrapper_very_verbose_logging);
 
     return new Promise<void>((resolve) => {
       amqp.connect(this._settings.connection, (error0, connection) => {
