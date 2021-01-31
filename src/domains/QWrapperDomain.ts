@@ -1,11 +1,14 @@
 import * as amqp from 'amqplib/callback_api';
-import { ConsumerResponse, QWrapperSettings } from '../models';
 import { Channel, Message as amqMessage, Options } from 'amqplib/callback_api';
+import { ConsumerResponse, QWrapperSettings } from '../models';
 import { inspect } from 'util';
 
 const packageName = 'q-wrapper: ';
 
 export class QWrapperDomain {
+
+  private _verboseLogging: boolean = false;
+  private _veryVerboseLogging: boolean = false;
 
   private _settings: QWrapperSettings;
   private _channel: amqp.Channel | undefined;
@@ -16,7 +19,7 @@ export class QWrapperDomain {
   }
 
   logVerbose (key: string, toLog?: any) {
-    if (this._settings.verboseLogging) {
+    if (this._verboseLogging) {
       console.log(packageName + ' ' + key);
       if (toLog) {
         console.log(inspect(toLog, false, null, true /* enable colors */));
@@ -24,12 +27,20 @@ export class QWrapperDomain {
     }
   }
 
+  logVeryVerbose (toLog?: any) {
+    if (this._veryVerboseLogging) {
+      console.log(packageName, inspect(toLog, false, null, true /* enable colors */));
+    }
+  }
+
   public initialize (settings?: QWrapperSettings): Promise<void> {
     if (settings) {
       this._settings = settings;
     }
+    this._verboseLogging = !!(this._settings.verboseLogging || process.env['q_wrapper_verbose_logging']);
+    this._veryVerboseLogging = !!(this._settings.veryVerboseLogging || process.env['q_wrapper_very_verbose_logging']);
 
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve) => {
       amqp.connect(this._settings.connection, (error0, connection) => {
         if (error0) {
           console.error(`${packageName} Error connecting to queue... `, error0);
@@ -69,7 +80,7 @@ export class QWrapperDomain {
           if (this._settings.reconnect) {
             connection.on('close', () => {
               console.error('[AMQP] reconnecting');
-              this.initialize(this._settings);
+              this.initialize(this._settings).catch(console.error);
             });
           }
 
@@ -81,7 +92,8 @@ export class QWrapperDomain {
 
   public sendToQueue (message: object, queueName?: string, msgOptions?: Options.Publish): boolean {
     if (this._channel) {
-      this.logVerbose('sendToQueue called', { message, queueName: queueName || 'not defined' });
+      this.logVerbose('sendToQueue called');
+      this.logVeryVerbose({ message, queueName: queueName || 'not defined' });
 
       const messageToSend = Buffer.from(JSON.stringify(message));
       const queue = queueName ? queueName : this._settings.queue;
@@ -92,7 +104,8 @@ export class QWrapperDomain {
         ...(msgOptions || {}),
       });
 
-      this.logVerbose('sendToQueue completed', { response });
+      this.logVerbose('sendToQueue completed');
+      this.logVeryVerbose({ response });
 
       return response;
     } else {
@@ -102,13 +115,15 @@ export class QWrapperDomain {
 
   public sendToExchange (message: object, routingKey?: string, msgOptions?: Options.Publish): boolean {
     if (this._channel) {
-      this.logVerbose('sendToExchange called', { message, routingKey: routingKey || 'not defined' });
+      this.logVerbose('sendToExchange called');
+      this.logVeryVerbose({ message, routingKey: routingKey || 'not defined' });
 
       const messageToSend = Buffer.from(JSON.stringify(message));
       routingKey = routingKey ? routingKey : this._settings.queue;
 
       const response = this._channel.publish(this._settings.exchange, routingKey, messageToSend, msgOptions);
       this.logVerbose('sendToExchange completed', { response });
+      this.logVeryVerbose({ response });
 
       return response;
     } else {
@@ -121,12 +136,14 @@ export class QWrapperDomain {
       const channel = this._channel;
       const queue = consumeDLE ? this._settings.dleQueue : this._settings.queue;
       channel.consume(queue, async (message) => {
-        this.logVerbose('consume callback called', { message: message || 'not defined' });
+        this.logVerbose('consume callback called');
+        this.logVeryVerbose({ message: message || 'not defined' });
         if (message) {
-          const consumerResponse = await callback(message).then();
+          const consumerResponse = await callback(message);
+          this.logVerbose('consume callback completed:', consumerResponse);
           this.sendResponseToChannel(consumerResponse, channel, message);
+          this.logVerbose('sendResponseToChannel completed');
         }
-        this.logVerbose('consume callback completed');
       }, {
         noAck: false
       });
