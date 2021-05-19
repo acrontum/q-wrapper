@@ -36,11 +36,10 @@ export class QWrapperDomain {
   setLoggingLevels () {
     this._verboseLogging = this._settings.verboseLogging || false;
     this._veryVerboseLogging = this._settings.veryVerboseLogging || false;
-    const falsyStrings = ['false', 'FALSE'];
-    if (process.env.q_wrapper_verbose_logging && falsyStrings.indexOf(process.env.q_wrapper_verbose_logging) === -1) {
+    if (process.env.q_wrapper_verbose_logging && process.env.q_wrapper_verbose_logging.toLowerCase() === 'true') {
       this._verboseLogging = true;
     }
-    if (process.env.q_wrapper_very_verbose_logging && falsyStrings.indexOf(process.env.q_wrapper_very_verbose_logging) === -1) {
+    if (process.env.q_wrapper_very_verbose_logging && process.env.q_wrapper_very_verbose_logging.toLowerCase() === 'true') {
       this._veryVerboseLogging = true;
     }
   }
