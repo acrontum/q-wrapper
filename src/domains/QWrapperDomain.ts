@@ -33,12 +33,23 @@ export class QWrapperDomain {
     }
   }
 
+  setLoggingLevels () {
+    this._verboseLogging = this._settings.verboseLogging || false;
+    this._veryVerboseLogging = this._settings.veryVerboseLogging || false;
+    if (process.env.q_wrapper_verbose_logging && process.env.q_wrapper_verbose_logging.toLowerCase() === 'true') {
+      this._verboseLogging = true;
+    }
+    if (process.env.q_wrapper_very_verbose_logging && process.env.q_wrapper_very_verbose_logging.toLowerCase() === 'true') {
+      this._veryVerboseLogging = true;
+    }
+  }
+
   public initialize (settings?: QWrapperSettings): Promise<void> {
     if (settings) {
       this._settings = settings;
     }
-    this._verboseLogging = !!(this._settings.verboseLogging || process.env.q_wrapper_verbose_logging);
-    this._veryVerboseLogging = !!(this._settings.veryVerboseLogging || process.env.q_wrapper_very_verbose_logging);
+
+    this.setLoggingLevels();
 
     return new Promise<void>((resolve) => {
       amqp.connect(this._settings.connection, (error0, connection) => {
