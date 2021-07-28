@@ -71,8 +71,10 @@ export class QWrapperDomain {
           this._channel.assertExchange(this._settings.exchange, this._settings.exchangeType, durable);
           console.info(`${packageName} Exchange: '${this._settings.exchange}' asserted successfully`);
 
-          this._channel.assertExchange(this._settings.dleExchange, 'direct', durable);
-          console.info(`${packageName} Exchange: '${this._settings.dleExchange}' asserted successfully`);
+          if (this._settings.dleExchange !== this._settings.exchange) {
+            this._channel.assertExchange(this._settings.dleExchange, 'direct', durable);
+            console.info(`${packageName} Exchange: '${this._settings.dleExchange}' asserted successfully`);
+          }
 
           this._channel.assertQueue(this._settings.dleQueue, durable);
           console.info(`${packageName} DLE Queue: '${this._settings.dleQueue}' asserted successfully`);
