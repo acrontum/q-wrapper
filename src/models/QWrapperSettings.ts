@@ -10,5 +10,5 @@ export interface QWrapperSettings {
   reconnect?: boolean;
   prefetch?: number;
   dleQueue: string;
-  dleExchange: string;
+  dleExchange?: string;
 }
