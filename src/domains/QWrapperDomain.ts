@@ -6,7 +6,6 @@ import { inspect } from 'util';
 const packageName = 'q-wrapper: ';
 
 export class QWrapperDomain {
-
   private _verboseLogging: boolean = false;
   private _veryVerboseLogging: boolean = false;
 
@@ -18,7 +17,7 @@ export class QWrapperDomain {
     this._settings = settings;
   }
 
-  logVerbose (key: string, toLog?: any) {
+  logVerbose (key: string, toLog?: any): void {
     if (this._verboseLogging) {
       console.log(packageName + ' ' + key);
       if (toLog) {
@@ -27,13 +26,13 @@ export class QWrapperDomain {
     }
   }
 
-  logVeryVerbose (toLog?: any) {
+  logVeryVerbose (toLog?: any): void {
     if (this._veryVerboseLogging) {
       console.log(packageName, inspect(toLog, false, null, true /* enable colors */));
     }
   }
 
-  setLoggingLevels () {
+  setLoggingLevels (): void {
     this._verboseLogging = this._settings.verboseLogging || false;
     this._veryVerboseLogging = this._settings.veryVerboseLogging || false;
     if (process.env.q_wrapper_verbose_logging && process.env.q_wrapper_verbose_logging.toLowerCase() === 'true') {
@@ -72,14 +71,16 @@ export class QWrapperDomain {
           this._channel.assertExchange(this._settings.exchange, this._settings.exchangeType, durable);
           console.info(`${packageName} Exchange: '${this._settings.exchange}' asserted successfully`);
 
+          this._channel.assertExchange(this._settings.dleExchange, 'direct', durable);
+          console.info(`${packageName} Exchange: '${this._settings.dleExchange}' asserted successfully`);
+
           this._channel.assertQueue(this._settings.dleQueue, durable);
           console.info(`${packageName} DLE Queue: '${this._settings.dleQueue}' asserted successfully`);
-
-          this._channel.bindQueue(this._settings.dleQueue, this._settings.exchange, this._settings.dleQueue);
+          this._channel.bindQueue(this._settings.dleQueue, this._settings.dleExchange, this._settings.dleQueue);
 
           this._channel.assertQueue(this._settings.queue, {
             durable: true,
-            deadLetterExchange: this._settings.exchange,
+            deadLetterExchange: this._settings.dleExchange,
             deadLetterRoutingKey: this._settings.dleQueue
           });
           console.info(`${packageName} Queue: '${this._settings.queue}' asserted successfully`);
@@ -181,7 +182,7 @@ export class QWrapperDomain {
   }
 
   public closeConnection (): Promise<any> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
       await this.close();
 
       if (!this._connection) {
