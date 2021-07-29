@@ -1,4 +1,4 @@
-import {QWrapperDomain, QWrapperSettings} from '..';
+import { QWrapperDomain, QWrapperSettings } from '..';
 
 const settings: QWrapperSettings = {
   exchange: 'test_dsd_exchange',
@@ -14,9 +14,10 @@ const settings: QWrapperSettings = {
     vhost: '/',
   },
   queue:'test_dsd_queue',
-  dleQueue: 'test_dsd_dead_letter',
   exchangeType: 'fanout',
-  reconnect: false
+  reconnect: false,
+  dleExchange: 'test_dsd_dead_exchange',
+  dleQueue: 'test_dsd_dead_letter',
 };
 
 test('Queue manager constructor string url', (done) => {
