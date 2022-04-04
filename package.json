@@ -30,6 +30,7 @@
   "author": "sanchez@acrontum.de",
   "license": "MIT",
   "devDependencies": {
+    "@types/amqplib": "^0.8.2",
     "@types/jest": "^25.1.2",
     "jest": "^25.1.0",
     "prettier": "^1.19.1",
@@ -39,8 +40,7 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
-    "@types/amqplib": "^0.5.17",
-    "amqplib": "^0.6.0"
+    "amqplib": "^0.8.0"
   },
   "files": [
     "lib/**/*"
