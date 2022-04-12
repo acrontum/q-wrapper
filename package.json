@@ -1,6 +1,6 @@
 {
   "name": "q-wrapper",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A TypeScript npm package that manages queue connections and operations with amqplib.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
