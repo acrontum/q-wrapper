@@ -15,30 +15,30 @@ import EventBus from 'somelib/eventbus'; // <- made up, please write your own ap
 class Demo {
   private qw: QWrapperDomain | undefined;
 
-  async bind () {
+  async bind() {
     const qw = new QWrapperDomain({
       connection: 'amqp://rabbitmq.mydomain.org',
       exchange: 'main',
       exchangeType: 'fanout',
       queue: 'thisDemoService',
-      dleQueue: 'dead-letters'
+      dleQueue: 'dead-letters',
     });
     await qw.initialize();
     qw.consume(this.consume);
     this.publishEvents();
   }
 
-  async consume (message: Message): Promise<ConsumerResponse> {
+  async consume(message: Message): Promise<ConsumerResponse> {
     if (message.fields.routingKey === 'auth.user.new') {
       // Do something with the data
     }
     return {
       processed: true,
-      requeue: false
+      requeue: false,
     };
   }
 
-  async publishEvents () {
+  async publishEvents() {
     EventBus.on('email.user.new.sent', (payload: any) => {
       this.qw?.sendToExchange(payload, 'email.user.new.sent');
     });

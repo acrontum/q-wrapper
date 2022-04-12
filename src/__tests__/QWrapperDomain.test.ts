@@ -13,22 +13,22 @@ const settings: QWrapperSettings = {
     heartbeat: 0,
     vhost: '/',
   },
-  queue:'test_dsd_queue',
+  queue: 'test_dsd_queue',
   exchangeType: 'fanout',
   reconnect: false,
   dleExchange: 'test_dsd_dead_exchange',
   dleQueue: 'test_dsd_dead_letter',
 };
 
-test('Queue manager constructor string url', (done) => {
+test('Queue manager constructor string url', done => {
   const qw = new QWrapperDomain({
     ...settings,
     connection: 'amqp://localhost',
   });
-  done()
+  done();
 });
 
-test('Queue manager constructor object connectionUrl', (done) => {
+test('Queue manager constructor object connectionUrl', done => {
   const qManager = new QWrapperDomain(settings);
   done();
 });

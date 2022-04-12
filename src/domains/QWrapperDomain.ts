@@ -13,11 +13,11 @@ export class QWrapperDomain {
   private _channel: amqp.Channel | undefined;
   private _connection: amqp.Connection | undefined;
 
-  constructor (settings: QWrapperSettings) {
+  constructor(settings: QWrapperSettings) {
     this._settings = settings;
   }
 
-  logVerbose (key: string, toLog?: any): void {
+  logVerbose(key: string, toLog?: any): void {
     if (this._verboseLogging) {
       console.log(packageName + ' ' + key);
       if (toLog) {
@@ -26,31 +26,34 @@ export class QWrapperDomain {
     }
   }
 
-  logVeryVerbose (toLog?: any): void {
+  logVeryVerbose(toLog?: any): void {
     if (this._veryVerboseLogging) {
       console.log(packageName, inspect(toLog, false, null, true /* enable colors */));
     }
   }
 
-  setLoggingLevels (): void {
+  setLoggingLevels(): void {
     this._verboseLogging = this._settings.verboseLogging || false;
     this._veryVerboseLogging = this._settings.veryVerboseLogging || false;
     if (process.env.q_wrapper_verbose_logging && process.env.q_wrapper_verbose_logging.toLowerCase() === 'true') {
       this._verboseLogging = true;
     }
-    if (process.env.q_wrapper_very_verbose_logging && process.env.q_wrapper_very_verbose_logging.toLowerCase() === 'true') {
+    if (
+      process.env.q_wrapper_very_verbose_logging &&
+      process.env.q_wrapper_very_verbose_logging.toLowerCase() === 'true'
+    ) {
       this._veryVerboseLogging = true;
     }
   }
 
-  public initialize (settings?: QWrapperSettings): Promise<void> {
+  public initialize(settings?: QWrapperSettings): Promise<void> {
     if (settings) {
       this._settings = settings;
     }
 
     this.setLoggingLevels();
 
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(resolve => {
       amqp.connect(this._settings.connection, (error0, connection) => {
         if (error0) {
           console.error(`${packageName} Error connecting to queue... `, error0);
@@ -84,7 +87,7 @@ export class QWrapperDomain {
           this._channel.assertQueue(this._settings.queue, {
             durable: true,
             deadLetterExchange: dleExchange,
-            deadLetterRoutingKey: this._settings.dleQueue
+            deadLetterRoutingKey: this._settings.dleQueue,
           });
           console.info(`${packageName} Queue: '${this._settings.queue}' asserted successfully`);
 
@@ -105,7 +108,7 @@ export class QWrapperDomain {
     });
   }
 
-  public sendToQueue (message: object, queueName?: string, msgOptions?: Options.Publish): boolean {
+  public sendToQueue(message: object, queueName?: string, msgOptions?: Options.Publish): boolean {
     if (this._channel) {
       this.logVerbose('sendToQueue called');
       this.logVeryVerbose({ message, queueName: queueName || 'not defined' });
@@ -128,7 +131,7 @@ export class QWrapperDomain {
     }
   }
 
-  public sendToExchange (message: object, routingKey?: string, msgOptions?: Options.Publish): boolean {
+  public sendToExchange(message: object, routingKey?: string, msgOptions?: Options.Publish): boolean {
     if (this._channel) {
       this.logVerbose('sendToExchange called');
       this.logVeryVerbose({ message, routingKey: routingKey || 'not defined' });
@@ -146,33 +149,37 @@ export class QWrapperDomain {
     }
   }
 
-  public consume (callback: (message: amqMessage) => Promise<ConsumerResponse>, consumeDLE: boolean = false): void {
+  public consume(callback: (message: amqMessage) => Promise<ConsumerResponse>, consumeDLE: boolean = false): void {
     if (this._channel) {
       const channel = this._channel;
       const queue = consumeDLE ? this._settings.dleQueue : this._settings.queue;
-      channel.consume(queue, async (message) => {
-        this.logVerbose('consume callback called');
-        this.logVeryVerbose({ message: message || 'not defined' });
-        if (message) {
-          const consumerResponse = await callback(message);
-          this.logVerbose('consume callback completed:', consumerResponse);
-          this.sendResponseToChannel(consumerResponse, channel, message);
-          this.logVerbose('sendResponseToChannel completed');
-        }
-      }, {
-        noAck: false
-      });
+      channel.consume(
+        queue,
+        async message => {
+          this.logVerbose('consume callback called');
+          this.logVeryVerbose({ message: message || 'not defined' });
+          if (message) {
+            const consumerResponse = await callback(message);
+            this.logVerbose('consume callback completed:', consumerResponse);
+            this.sendResponseToChannel(consumerResponse, channel, message);
+            this.logVerbose('sendResponseToChannel completed');
+          }
+        },
+        {
+          noAck: false,
+        },
+      );
     } else {
       throw Error(`${packageName} Channel not set up.`);
     }
   }
 
-  public async consumeDLE (callback: (message: amqMessage) => Promise<ConsumerResponse>): Promise<void> {
+  public async consumeDLE(callback: (message: amqMessage) => Promise<ConsumerResponse>): Promise<void> {
     return this.consume(callback, true);
   }
 
-  public close (): Promise<void> {
-    return new Promise((resolve) => {
+  public close(): Promise<void> {
+    return new Promise(resolve => {
       if (!this._channel) {
         return resolve();
       }
@@ -184,7 +191,7 @@ export class QWrapperDomain {
     });
   }
 
-  public closeConnection (): Promise<any> {
+  public closeConnection(): Promise<any> {
     return new Promise<void>(async (resolve, reject) => {
       await this.close();
 
@@ -202,7 +209,7 @@ export class QWrapperDomain {
     });
   }
 
-  private sendResponseToChannel (consumerResponse: ConsumerResponse, channel: Channel, message: amqMessage) {
+  private sendResponseToChannel(consumerResponse: ConsumerResponse, channel: Channel, message: amqMessage) {
     this.logVerbose('sendResponseToChannel called');
     channel.ack(message);
     if (!consumerResponse.processed) {

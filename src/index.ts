@@ -1,6 +1,6 @@
 // Domain exports
-export {QWrapperDomain} from "./domains/QWrapperDomain";
+export { QWrapperDomain } from './domains/QWrapperDomain';
 
 // Models exports
-export {QWrapperSettings} from "./models";
-export {ConsumerResponse} from "./models";
+export { QWrapperSettings } from './models';
+export { ConsumerResponse } from './models';
