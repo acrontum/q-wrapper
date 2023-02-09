@@ -4,4 +4,3 @@ tslint.json
 ./package-lock.json
 ./package.json
 .prettierrc
-/lib/src/**/*(.js,.d.ts)
