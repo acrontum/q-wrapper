@@ -1,5 +1,5 @@
-import {QWrapperDomain, QWrapperSettings} from '..';
-import {ExchangeType} from "../models/QWrapperSettings";
+import { QWrapperDomain, QWrapperSettings } from '..';
+import { ExchangeType } from '../models/QWrapperSettings';
 
 const settings: QWrapperSettings = {
   exchange: 'amq.fanout',

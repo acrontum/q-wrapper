@@ -15,7 +15,7 @@ export interface QWrapperSettings {
   prefetch?: number;
   queue: string;
   reconnect?: boolean;
-  routingKey?: string,
+  routingKey?: string;
   verboseLogging?: boolean;
   veryVerboseLogging?: boolean;
 }
