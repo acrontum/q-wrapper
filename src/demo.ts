@@ -1,6 +1,7 @@
-import { ConsumerResponse, QWrapperDomain } from '../lib/index';
-import { Message } from 'amqplib';
-import EventBus from 'somelib/eventbus'; // <- made up, please write your own app eventbus
+import {ConsumerResponse, QWrapperDomain} from '../lib/index';
+import {Message} from 'amqplib';
+import EventBus from 'somelib/eventbus';
+import {ExchangeType} from "../lib/models/QWrapperSettings"; // <- made up, please write your own app eventbus
 
 /**
  * Imagine this demo class is a microservice.
@@ -19,7 +20,7 @@ class Demo {
     const qw = new QWrapperDomain({
       connection: 'amqp://rabbitmq.mydomain.org',
       exchange: 'main',
-      exchangeType: 'fanout',
+      exchangeType: ExchangeType.fanout,
       queue: 'thisDemoService',
       dleQueue: 'dead-letters',
     });

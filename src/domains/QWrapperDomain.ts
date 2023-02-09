@@ -91,7 +91,8 @@ export class QWrapperDomain {
           });
           console.info(`${packageName} Queue: '${this._settings.queue}' asserted successfully`);
 
-          this._channel.bindQueue(this._settings.queue, this._settings.exchange, this._settings.queue);
+          const routingKey = this._settings.routingKey ? this._settings.routingKey : this._settings.queue;
+          this._channel.bindQueue(this._settings.queue, this._settings.exchange, routingKey);
 
           this._channel.prefetch(this._settings.prefetch || 1);
 
