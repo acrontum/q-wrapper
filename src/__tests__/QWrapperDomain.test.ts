@@ -1,29 +1,27 @@
 import { QWrapperDomain, QWrapperSettings } from '..';
+import { ExchangeType } from '../models/QWrapperSettings';
 
 const settings: QWrapperSettings = {
-  exchange: 'test_dsd_exchange',
+  exchange: 'amq.fanout',
   connection: {
     protocol: 'amqp',
     hostname: 'localhost',
     port: 5672,
-    username: 'guest',
-    password: 'guest',
-    locale: 'en_US',
-    frameMax: 0,
-    heartbeat: 0,
-    vhost: '/',
+    username: 'admin',
+    password: 'admin',
+    vhost: 'vhost',
   },
-  queue: 'test_dsd_queue',
-  exchangeType: 'fanout',
+  queue: 'myqueue.events',
+  exchangeType: ExchangeType.fanout,
   reconnect: false,
-  dleExchange: 'test_dsd_dead_exchange',
-  dleQueue: 'test_dsd_dead_letter',
+  dleExchange: 'amq.fanout',
+  dleQueue: 'myqueue.dle_events',
 };
 
 test('Queue manager constructor string url', done => {
   const qw = new QWrapperDomain({
     ...settings,
-    connection: 'amqp://localhost',
+    connection: 'amqp://admin:admin@localhost:5672/vhost',
   });
   done();
 });
